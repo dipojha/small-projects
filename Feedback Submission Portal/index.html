@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.min.css">
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { Rate, Form, Input, Button, Upload, message, Select } = antd;
+        const { TextArea } = Input;
+        const { Option } = Select;
+
+        const FeedbackSection = () => {
+            const [form] = Form.useForm();
+            const [fileList, setFileList] = React.useState([]);
+            const [loading, setLoading] = React.useState(false);
+
+            const handleSubmit = async (values) => {
+                setLoading(true);
+                try {
+                    // Add your submission logic here
+                    console.log('Received values:', values);
+                    message.success('Feedback submitted successfully');
+                    form.resetFields();
+                    setFileList([]);
+                } catch (error) {
+                    message.error('Submission failed');
+                }
+                setLoading(false);
+            };
+
+            const uploadProps = {
+                beforeUpload: (file) => {
+                    setFileList([...fileList, file]);
+                    return false;
+                },
+                fileList,
+                onRemove: (file) => {
+                    const index = fileList.indexOf(file);
+                    const newFileList = fileList.slice();
+                    newFileList.splice(index, 1);
+                    setFileList(newFileList);
+                },
+                accept: "image/*",
+                multiple: true,
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm mt-8">
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-6">Feedback Submission Portal</h2>
+                    
+                    <Form form={form} onFinish={handleSubmit} layout="vertical">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Feedback Target Selection */}
+                            <Form.Item
+                                label="Feedback Target"
+                                name="target"
+                                rules={[{ required: true, message: 'Please select feedback target' }]}
+                            >
+                                <Select placeholder="Select department/staff">
+                                    <Option value="academic">Academic Department</Option>
+                                    <Option value="administration">Administration</Option>
+                                    <Option value="facilities">Campus Facilities</Option>
+                                    <Option value="support">Student Support</Option>
+                                </Select>
+                            </Form.Item>
+
+                            {/* Service Rating */}
+                            <Form.Item
+                                label="Service Quality Rating"
+                                name="serviceRating"
+                                rules={[{ required: true, message: 'Please provide rating' }]}
+                            >
+                                <Rate allowHalf className="text-blue-600" />
+                            </Form.Item>
+                        </div>
+
+                        {/* Detailed Feedback */}
+                        <Form.Item
+                            label="Detailed Feedback"
+                            name="comments"
+                            rules={[{ required: true, message: 'Please provide detailed feedback' }]}
+                        >
+                            <TextArea
+                                rows={4}
+                                placeholder="Provide specific details about your experience"
+                                className="rounded-md"
+                            />
+                        </Form.Item>
+
+                        {/* Evidence Upload */}
+                        <Form.Item label="Supporting Documentation">
+                            <Upload.Dragger {...uploadProps} className="bg-gray-50">
+                                <p className="ant-upload-text text-gray-600">
+                                    Drag & drop images or click to upload
+                                </p>
+                                <p className="ant-upload-hint text-gray-400">
+                                    Supports JPEG, PNG (Max 5MB per file)
+                                </p>
+                            </Upload.Dragger>
+                        </Form.Item>
+
+                        {/* Status Tracking */}
+                        <Form.Item
+                            label="Feedback Status"
+                            name="status"
+                            initialValue="submitted"
+                        >
+                            <Select className="w-48">
+                                <Option value="submitted">Submitted</Option>
+                                <Option value="review">Under Review</Option>
+                                <Option value="resolved">Resolved</Option>
+                            </Select>
+                        </Form.Item>
+
+                        {/* Submission */}
+                        <Form.Item>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                loading={loading}
+                                className="bg-blue-600 hover:bg-blue-700 h-10 px-6 rounded-md"
+                            >
+                                Submit Feedback
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<FeedbackSection />, document.getElementById('root'));
+    </script>
+</body>
+</html>
