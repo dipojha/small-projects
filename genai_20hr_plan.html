@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>20-Hour GenAI Fast Track</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f0f13;
+    color: #e8e8f0;
+    min-height: 100vh;
+    padding: 28px 18px;
+  }
+  .header { text-align: center; margin-bottom: 32px; }
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .header p { color: #8888a8; font-size: 0.9rem; }
+
+  .progress-bar-wrap {
+    background: #1e1e2e;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    border: 1px solid #2a2a3e;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: #8888a8; margin-bottom: 8px; }
+  .progress-track { background: #2a2a3e; border-radius: 999px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #a78bfa, #60a5fa); transition: width 0.5s ease; }
+
+  .sessions { display: flex; flex-direction: column; gap: 14px; max-width: 780px; margin: 0 auto; }
+
+  .session-card { background: #1a1a26; border: 1px solid #2a2a3e; border-radius: 14px; overflow: hidden; transition: border-color 0.2s; }
+  .session-card:hover { border-color: #4a4a6e; }
+  .session-card.active-card { border-color: #7c3aed; }
+  .session-card.done { border-color: #059669; opacity: 0.9; }
+
+  .session-header { display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; user-select: none; }
+  .session-num { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.88rem; flex-shrink: 0; }
+  .done .session-num { background: #065f46; color: #34d399; }
+  .active-card .session-num { background: #4c1d95; color: #a78bfa; }
+  .session-card:not(.done):not(.active-card) .session-num { background: #2a2a3e; color: #8888a8; }
+
+  .session-meta { flex: 1; min-width: 0; }
+  .session-title { font-weight: 700; font-size: 0.95rem; }
+  .session-subtitle { font-size: 0.78rem; color: #8888a8; margin-top: 2px; }
+
+  .session-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 999px; font-weight: 600; }
+  .badge-purple { background: #3b1f6e; color: #c4b5fd; }
+  .badge-blue { background: #1e3a5f; color: #93c5fd; }
+  .badge-green { background: #064e3b; color: #6ee7b7; }
+
+  .chevron { width: 20px; height: 20px; color: #4a4a6e; transition: transform 0.25s; flex-shrink: 0; }
+  .session-card.open .chevron { transform: rotate(180deg); }
+
+  .session-body { display: none; padding: 0 18px 18px; border-top: 1px solid #2a2a3e; }
+  .session-card.open .session-body { display: block; }
+
+  .section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6060a0; margin: 14px 0 8px; }
+  .timeline-tag { font-size: 0.72rem; color: #6060a0; background: #1e1e2e; border-radius: 6px; padding: 3px 8px; display: inline-block; margin: 10px 0 4px; }
+
+  .topic-list { list-style: none; }
+  .topic-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.85rem; color: #c0c0d8; margin-bottom: 6px; line-height: 1.4; }
+  .topic-list li::before { content: "▸"; color: #a78bfa; flex-shrink: 0; }
+
+  .resources { display: flex; flex-direction: column; gap: 7px; }
+  .resource-link { display: flex; align-items: center; gap: 10px; background: #12121c; border: 1px solid #2a2a3e; border-radius: 8px; padding: 9px 12px; text-decoration: none; transition: border-color 0.2s; }
+  .resource-link:hover { border-color: #7c3aed; background: #18102a; }
+  .resource-icon { font-size: 1rem; flex-shrink: 0; }
+  .resource-name { font-size: 0.82rem; font-weight: 600; color: #d0d0e8; }
+  .resource-type { font-size: 0.72rem; color: #6060a0; }
+
+  .review-box { background: #0d1f10; border: 1px solid #1a4025; border-radius: 10px; padding: 12px 14px; }
+  .review-box p { font-size: 0.83rem; color: #9dd09a; line-height: 1.5; }
+
+  .done-btn { margin-top: 14px; width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+  .mark-btn { background: #4c1d95; color: #d8b4fe; }
+  .mark-btn:hover { background: #6d28d9; }
+  .unmark-btn { background: #064e3b; color: #6ee7b7; }
+  .unmark-btn:hover { background: #065f46; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ 20-Hour GenAI Fast Track</h1>
+  <p>10 sessions · 2 hrs each · Pareto-optimized for speed · 15-min review per session</p>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label">
+    <span>Overall Progress</span>
+    <span id="prog-text">0 / 10 sessions complete</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="sessions" id="sessions-container"></div>
+
+<script>
+const sessions = [
+  {
+    title: "How GenAI Actually Works",
+    subtitle: "Mental models that make everything else click",
+    badges: [["Concepts","purple"],["No Code","blue"]],
+    time: "Hours 1–2",
+    topics: [
+      "What a transformer is — the attention mechanism, simply explained",
+      "Tokens & embeddings — why they matter for prompting",
+      "The training pipeline: pre-training → fine-tuning → RLHF",
+      "LLMs vs diffusion models vs multimodal — key differences",
+      "Why hallucination happens and its root cause",
+    ],
+    resources: [
+      { icon: "🎬", name: "3Blue1Brown – But what is a GPT?", type: "YouTube · 27 min", url: "https://www.youtube.com/watch?v=wjZofJX0v4M" },
+      { icon: "🎬", name: "Andrej Karpathy – Intro to Large Language Models", type: "YouTube · 1 hr", url: "https://www.youtube.com/watch?v=zjkBMFhNj_g" },
+      { icon: "📝", name: "The Illustrated Transformer – Jay Alammar", type: "Deep-dive blog post", url: "https://jalammar.github.io/illustrated-transformer/" },
+    ],
+    review: "Explain in plain English what happens when you send a prompt to an LLM: tokenization → embedding → attention → decoding. If you can teach it to someone else, you know it.",
+  },
+  {
+    title: "Prompt Engineering Mastery",
+    subtitle: "The highest-ROI skill in all of GenAI",
+    badges: [["Hands-on","green"],["Immediate ROI","purple"]],
+    time: "Hours 3–4",
+    topics: [
+      "Zero-shot, few-shot, and chain-of-thought prompting",
+      "System prompts vs user prompts — when and how to use each",
+      "Structured output: JSON mode, XML tags, markdown formatting",
+      "ReAct pattern: reason + act loops",
+      "Common failure modes and how to debug them",
+    ],
+    resources: [
+      { icon: "📖", name: "Anthropic Prompt Engineering Guide", type: "Official Docs (free)", url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" },
+      { icon: "🎬", name: "ChatGPT Prompt Engineering for Developers – Andrew Ng", type: "DeepLearning.AI · Free · ~1 hr", url: "https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/" },
+      { icon: "🛠️", name: "Practice Sandbox – Claude.ai", type: "Free interactive playground", url: "https://claude.ai" },
+    ],
+    review: "Write 5 prompts for a real task you do at work. Rewrite each using chain-of-thought. Compare outputs. Note which techniques moved the needle most — and why.",
+  },
+  {
+    title: "The LLM API & Developer Primitives",
+    subtitle: "Go from chat interface to building real things",
+    badges: [["Code","blue"],["API","purple"]],
+    time: "Hours 5–6",
+    topics: [
+      "REST API basics: messages array, roles, temperature, max_tokens",
+      "Streaming responses — why it matters for perceived latency",
+      "Tool/function calling — the most powerful API primitive",
+      "Managing context windows and token limits in practice",
+      "Cost estimation: tokens → dollars (and how to cut costs)",
+    ],
+    resources: [
+      { icon: "📖", name: "Anthropic API Quickstart", type: "Official Docs", url: "https://docs.anthropic.com/en/api/getting-started" },
+      { icon: "🎬", name: "LangChain Crash Course – Sam Witteveen", type: "YouTube · 40 min", url: "https://www.youtube.com/watch?v=LbT1yp6quS8" },
+      { icon: "📝", name: "OpenAI Cookbook – Function Calling", type: "GitHub Notebook", url: "https://cookbook.openai.com/examples/how_to_call_functions_with_chat_models" },
+    ],
+    review: "Build a 20-line Python script that calls an LLM API with a custom system prompt and returns a structured JSON response. Run it. Ship it. That counts.",
+  },
+  {
+    title: "RAG — Retrieval-Augmented Generation",
+    subtitle: "How to give LLMs access to your private data",
+    badges: [["Architecture","purple"],["High Impact","green"]],
+    time: "Hours 7–8",
+    topics: [
+      "Why RAG beats fine-tuning for most real-world use cases",
+      "Embeddings and vector databases (Pinecone, Chroma, pgvector)",
+      "Chunking strategies that actually work — and ones that don't",
+      "The full RAG pipeline: retrieve → augment → generate",
+      "Evaluating RAG quality: recall, precision, faithfulness",
+    ],
+    resources: [
+      { icon: "🎬", name: "RAG from Scratch – LangChain Playlist", type: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLfaIDFEXuae2LXbO1_PKyVJiQ23ZztA0x" },
+      { icon: "📖", name: "Building and Evaluating Advanced RAG – DeepLearning.AI", type: "Free Course · ~1 hr", url: "https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/" },
+      { icon: "🛠️", name: "ChromaDB Quickstart", type: "Docs + code examples", url: "https://docs.trychroma.com/getting-started" },
+    ],
+    review: "Sketch the full RAG pipeline from memory (paper or Excalidraw), labeling each step with its failure mode. Then answer: what happens if retrieval returns irrelevant chunks?",
+  },
+  {
+    title: "AI Agents & Tool Use",
+    subtitle: "When LLMs take actions, not just generate text",
+    badges: [["Advanced","purple"],["Agentic","blue"]],
+    time: "Hours 9–10",
+    topics: [
+      "What makes something an 'agent' vs a simple LLM chain",
+      "Tool use and function calling — the engine of agentic AI",
+      "ReAct, Plan-and-Execute, and reflection agent patterns",
+      "Multi-agent orchestration patterns (CrewAI, AutoGen)",
+      "Guardrails: preventing agents from going off-rails",
+    ],
+    resources: [
+      { icon: "🎬", name: "AI Agents in LangGraph – Andrew Ng", type: "DeepLearning.AI · Free · ~1 hr", url: "https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/" },
+      { icon: "📖", name: "Anthropic – Building Effective Agents", type: "Official Research Guide", url: "https://www.anthropic.com/research/building-effective-agents" },
+      { icon: "🛠️", name: "LangGraph Quickstart", type: "Docs + Notebooks", url: "https://langchain-ai.github.io/langgraph/tutorials/introduction/" },
+    ],
+    review: "Write pseudocode for a research agent that can search the web, fetch a URL, and summarize its findings. Identify 3 ways it could fail and how you'd guard against each.",
+  },
+  {
+    title: "Fine-Tuning & When to Use It",
+    subtitle: "Know the decision framework: RAG vs prompt vs fine-tune",
+    badges: [["ML","blue"],["Decision Framework","green"]],
+    time: "Hours 11–12",
+    topics: [
+      "The decision tree: when to use RAG vs prompt eng vs fine-tuning vs base model",
+      "LoRA & QLoRA — fine-tuning without massive GPU requirements",
+      "Dataset preparation: quality beats quantity every time",
+      "RLHF and preference tuning — intuition and concepts",
+      "Evaluating a fine-tuned model correctly",
+    ],
+    resources: [
+      { icon: "🎬", name: "Finetuning Large Language Models – Sharon Zhou", type: "DeepLearning.AI · Free · ~1 hr", url: "https://www.deeplearning.ai/short-courses/finetuning-large-language-models/" },
+      { icon: "📖", name: "Hugging Face NLP Course – Chapter 3 (Fine-tuning)", type: "Free interactive course", url: "https://huggingface.co/learn/nlp-course/chapter3/1" },
+      { icon: "🛠️", name: "Together AI – Fine-tuning Platform", type: "Managed fine-tuning", url: "https://www.together.ai/blog/fine-tuning" },
+    ],
+    review: "For 3 use cases — customer support bot, code autocomplete, document summarizer — decide: RAG, prompt engineering, or fine-tuning? Write a 2-sentence justification for each.",
+  },
+  {
+    title: "Multimodal AI — Images, Audio & Beyond",
+    subtitle: "GenAI beyond the text box",
+    badges: [["Vision","blue"],["Diffusion","purple"]],
+    time: "Hours 13–14",
+    topics: [
+      "How vision-language models work (GPT-4V, Claude 3, Gemini)",
+      "Diffusion model intuition: noise schedule → image generation",
+      "Stable Diffusion vs DALL-E vs Midjourney — key tradeoffs",
+      "Multimodal APIs: sending images, PDFs, audio to LLMs",
+      "Real-world use cases: document parsing, image analysis pipelines",
+    ],
+    resources: [
+      { icon: "🎬", name: "How Diffusion Models Work – Hugging Face", type: "YouTube · 20 min", url: "https://www.youtube.com/watch?v=344w5h24-h8" },
+      { icon: "📖", name: "How Diffusion Models Work – DeepLearning.AI", type: "Free Course · ~1 hr", url: "https://www.deeplearning.ai/short-courses/how-diffusion-models-work/" },
+      { icon: "🛠️", name: "Claude Vision API Quickstart", type: "Official Docs", url: "https://docs.anthropic.com/en/docs/build-with-claude/vision" },
+    ],
+    review: "Pick one image-heavy workflow from your life or job. Design a multimodal pipeline to automate or enhance it. What model? What are the inputs and outputs? What's the hardest part?",
+  },
+  {
+    title: "Evaluation, Safety & Reliability",
+    subtitle: "The unglamorous work that makes AI production-ready",
+    badges: [["Production","green"],["Safety","blue"]],
+    time: "Hours 15–16",
+    topics: [
+      "Why LLM evaluation is fundamentally hard (non-determinism, no ground truth)",
+      "LLM-as-judge: using AI to evaluate AI outputs at scale",
+      "Key metrics: BLEU/ROUGE limitations, G-Eval, and newer approaches",
+      "Red-teaming basics: jailbreaks, prompt injection, data leakage",
+      "Constitutional AI and safety alignment — core concepts",
+    ],
+    resources: [
+      { icon: "🎬", name: "Evaluating & Debugging GenAI – DeepLearning.AI", type: "Free Course · ~1 hr", url: "https://www.deeplearning.ai/short-courses/evaluating-debugging-generative-ai/" },
+      { icon: "🛠️", name: "RAGAS – RAG Evaluation Framework", type: "Docs + GitHub", url: "https://docs.ragas.io/en/latest/" },
+      { icon: "📝", name: "Anthropic – Constitutional AI Paper", type: "Research Paper", url: "https://www.anthropic.com/index/constitutional-ai-harmlessness-from-ai-feedback" },
+    ],
+    review: "Write 5 adversarial test prompts for a customer support bot (prompt injection, jailbreak, edge case). How would you defend against each? What events would you log for monitoring?",
+  },
+  {
+    title: "Building & Shipping a GenAI App",
+    subtitle: "Full stack: from idea to deployed product",
+    badges: [["Full Stack","purple"],["Ship It","green"]],
+    time: "Hours 17–18",
+    topics: [
+      "Minimal viable GenAI stack: FastAPI or Next.js + LLM API",
+      "Streaming UI patterns for real-time response display",
+      "Latency, cost, and caching tradeoffs in production",
+      "Prompt versioning and A/B testing strategies",
+      "Observability: logging and tracing with LangSmith or Helicone",
+    ],
+    resources: [
+      { icon: "🎬", name: "Build a Full-Stack AI App – Fireship", type: "YouTube · 20 min", url: "https://www.youtube.com/watch?v=K_VJRMf4oHc" },
+      { icon: "🛠️", name: "Vercel AI SDK", type: "Docs + Starter Templates", url: "https://sdk.vercel.ai/docs" },
+      { icon: "🛠️", name: "LangSmith – LLM Observability Platform", type: "Platform Docs", url: "https://docs.smith.langchain.com/" },
+    ],
+    review: "Spec out a mini-app you could build in a weekend: one problem, one LLM call, one UI. Write the system prompt, the API call structure, and the UI description. Make it concrete.",
+  },
+  {
+    title: "The GenAI Landscape & What's Next",
+    subtitle: "Know the map so you're never lost",
+    badges: [["Strategy","purple"],["Big Picture","blue"]],
+    time: "Hours 19–20",
+    topics: [
+      "Model landscape: OpenAI, Anthropic, Google, Meta, Mistral — who wins where",
+      "Open-source vs closed: when each is the right choice",
+      "Emerging paradigms: test-time compute and reasoning models",
+      "The MCP ecosystem and agentic infrastructure layer",
+      "How to stay current: papers, newsletters, and communities that matter",
+    ],
+    resources: [
+      { icon: "📖", name: "State of AI Report 2024", type: "Annual industry report", url: "https://www.stateof.ai/" },
+      { icon: "📝", name: "Lilian Weng's Blog – OpenAI Research Deep Dives", type: "Technical blog", url: "https://lilianweng.github.io/" },
+      { icon: "🎬", name: "Latent Space Podcast", type: "Weekly AI engineering podcast", url: "https://www.latent.space/" },
+    ],
+    review: "Write a 200-word GenAI cheat sheet from memory — key concepts, key tools, key tradeoffs. No notes allowed. Then compare with your session notes and fill the gaps.",
+  },
+];
+
+let completed = new Set();
+try { completed = new Set(JSON.parse(localStorage.getItem('genai_done') || '[]')); } catch(e) {}
+let openSession = null;
+
+function save() {
+  try { localStorage.setItem('genai_done', JSON.stringify([...completed])); } catch(e) {}
+}
+
+function updateProgress() {
+  const n = completed.size;
+  document.getElementById('prog-text').textContent = `${n} / 10 sessions complete`;
+  document.getElementById('prog-fill').style.width = `${n * 10}%`;
+}
+
+function render() {
+  const container = document.getElementById('sessions-container');
+  container.innerHTML = '';
+  sessions.forEach((s, i) => {
+    const isDone = completed.has(i);
+    const isOpen = openSession === i;
+    const card = document.createElement('div');
+    card.className = `session-card${isDone ? ' done' : ''}${isOpen ? ' open' : ''}`;
+
+    const badgesHTML = s.badges.map(([l, c]) => `<span class="badge badge-${c}">${l}</span>`).join('');
+    const topicsHTML = s.topics.map(t => `<li>${t}</li>`).join('');
+    const resourcesHTML = s.resources.map(r => `
+      <a class="resource-link" href="${r.url}" target="_blank" rel="noopener">
+        <span class="resource-icon">${r.icon}</span>
+        <div style="flex:1">
+          <div class="resource-name">${r.name}</div>
+          <div class="resource-type">${r.type}</div>
+        </div>
+        <span style="color:#4a4a6e;font-size:0.8rem">↗</span>
+      </a>`).join('');
+
+    card.innerHTML = `
+      <div class="session-header">
+        <div class="session-num">${isDone ? '✓' : i + 1}</div>
+        <div class="session-meta">
+          <div class="session-title">Session ${i+1} — ${s.title}</div>
+          <div class="session-subtitle">${s.subtitle}</div>
+        </div>
+        <div class="session-badges">${badgesHTML}</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="session-body">
+        <div class="timeline-tag">⏱ ${s.time} &nbsp;·&nbsp; ~1h 45min study + 15min review</div>
+        <div class="section-label">📌 Core Topics</div>
+        <ul class="topic-list">${topicsHTML}</ul>
+        <div class="section-label">🔗 Best Resources</div>
+        <div class="resources">${resourcesHTML}</div>
+        <div class="section-label">🔄 15-Minute Review Prompt</div>
+        <div class="review-box"><p>💬 ${s.review}</p></div>
+        <button class="done-btn ${isDone ? 'unmark-btn' : 'mark-btn'}" data-idx="${i}">
+          ${isDone ? '✓ Completed — Click to Unmark' : 'Mark Session Complete ✓'}
+        </button>
+      </div>`;
+
+    card.querySelector('.session-header').addEventListener('click', () => {
+      openSession = openSession === i ? null : i;
+      render();
+    });
+    card.querySelector('.done-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      if (completed.has(i)) completed.delete(i); else completed.add(i);
+      save(); updateProgress(); render();
+    });
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+render();
+</script>
+</body>
+</html>
