@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/"
+  to = "/genai_20hr_plan.html"
+  status = 200
